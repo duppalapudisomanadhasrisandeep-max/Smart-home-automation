@@ -10,13 +10,14 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: home
+    description: Smart home management
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +25,359 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /me:
+    get:
+      operationId: getMe
+      tags: [home]
+      summary: Initialize the account and return the signed-in user's profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [home]
+      summary: Get smart-home overview statistics
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [home]
+      summary: List the current user's devices
+      parameters:
+        - name: room
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createDevice
+      tags: [home]
+      summary: Add a device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceInput"
+      responses:
+        "201":
+          description: Created device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /devices/{id}:
+    patch:
+      operationId: updateDevice
+      tags: [home]
+      summary: Edit a device or its controls
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceUpdate"
+      responses:
+        "200":
+          description: Updated device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteDevice
+      tags: [home]
+      summary: Delete a device
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /automations:
+    get:
+      operationId: listAutomations
+      tags: [home]
+      summary: List schedules and automation rules
+      responses:
+        "200":
+          description: Automation rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Automation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createAutomation
+      tags: [home]
+      summary: Create a scheduled automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationInput"
+      responses:
+        "201":
+          description: Created automation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Automation"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /automations/{id}:
+    patch:
+      operationId: updateAutomation
+      tags: [home]
+      summary: Edit or enable/disable a scheduled automation
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationUpdate"
+      responses:
+        "200":
+          description: Updated automation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Automation"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteAutomation
+      tags: [home]
+      summary: Delete an automation
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /activity:
+    get:
+      operationId: listActivity
+      tags: [home]
+      summary: Get the recent device and automation activity
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    BadRequest:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
-
+      required: [status]
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    UserProfile:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: ["string", "null"] }
+        displayName: { type: ["string", "null"] }
+        timezone: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, email, displayName, timezone, createdAt]
+    DashboardSummary:
+      type: object
+      properties:
+        totalDevices: { type: integer }
+        activeDevices: { type: integer }
+        devicesOn: { type: integer }
+        estimatedEnergyKwh: { type: number }
+        rooms: { type: integer }
+      required: [totalDevices, activeDevices, devicesOn, estimatedEnergyKwh, rooms]
+    Device:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string, enum: [light, fan, ac, tv, other] }
+        room: { type: string, enum: ["Living Room", Bedroom, Kitchen, Bathroom, Office] }
+        isOn: { type: boolean }
+        isOnline: { type: boolean }
+        brightness: { type: ["integer", "null"], minimum: 0, maximum: 100 }
+        fanSpeed: { type: ["integer", "null"], minimum: 1, maximum: 5 }
+        lastUpdatedAt: { type: string, format: date-time }
+      required: [id, name, type, room, isOn, isOnline, brightness, fanSpeed, lastUpdatedAt]
+    DeviceInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        type: { type: string, enum: [light, fan, ac, tv, other] }
+        room: { type: string, enum: ["Living Room", Bedroom, Kitchen, Bathroom, Office] }
+        isOn: { type: boolean }
+        isOnline: { type: boolean }
+        brightness: { type: ["integer", "null"], minimum: 0, maximum: 100 }
+        fanSpeed: { type: ["integer", "null"], minimum: 1, maximum: 5 }
+      required: [name, type, room]
+    DeviceUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        type: { type: string, enum: [light, fan, ac, tv, other] }
+        room: { type: string, enum: ["Living Room", Bedroom, Kitchen, Bathroom, Office] }
+        isOn: { type: boolean }
+        isOnline: { type: boolean }
+        brightness: { type: ["integer", "null"], minimum: 0, maximum: 100 }
+        fanSpeed: { type: ["integer", "null"], minimum: 1, maximum: 5 }
+    Automation:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        targetKind: { type: string, enum: [device, all_lights] }
+        targetDeviceId: { type: ["integer", "null"] }
+        time: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
+        days:
+          type: array
+          items: { type: string, enum: [Mon, Tue, Wed, Thu, Fri, Sat, Sun] }
+        action: { type: string, enum: [on, off] }
+        enabled: { type: boolean }
+        lastExecutedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+      required: [id, name, targetKind, targetDeviceId, time, days, action, enabled, lastExecutedAt, createdAt]
+    AutomationInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        targetKind: { type: string, enum: [device, all_lights] }
+        targetDeviceId: { type: ["integer", "null"] }
+        time: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
+        days:
+          type: array
+          minItems: 1
+          items: { type: string, enum: [Mon, Tue, Wed, Thu, Fri, Sat, Sun] }
+        action: { type: string, enum: [on, off] }
+        enabled: { type: boolean }
+      required: [name, targetKind, time, days, action]
+    AutomationUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        targetKind: { type: string, enum: [device, all_lights] }
+        targetDeviceId: { type: ["integer", "null"] }
+        time: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
+        days:
+          type: array
+          minItems: 1
+          items: { type: string, enum: [Mon, Tue, Wed, Thu, Fri, Sat, Sun] }
+        action: { type: string, enum: [on, off] }
+        enabled: { type: boolean }
+    Activity:
+      type: object
+      properties:
+        id: { type: integer }
+        category: { type: string, enum: [device, automation, system] }
+        message: { type: string }
+        deviceName: { type: ["string", "null"] }
+        room: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, category, message, deviceName, room, createdAt]

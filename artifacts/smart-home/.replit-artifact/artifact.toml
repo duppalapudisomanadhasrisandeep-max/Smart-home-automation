@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Smart Home"
+description = "A persistent smart-home simulator for monitoring and controlling household devices, organizing rooms, scheduling automations, and reviewing activity."
+version = "1.0.0"
+id = "artifacts/smart-home"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22449
+
+[services.development]
+run = "pnpm --filter @workspace/smart-home run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/smart-home", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/smart-home/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22449"
+BASE_PATH = "/"

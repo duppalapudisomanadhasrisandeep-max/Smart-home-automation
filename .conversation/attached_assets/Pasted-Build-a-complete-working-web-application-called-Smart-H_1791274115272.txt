@@ -1,0 +1,103 @@
+Build a complete working web application called "Smart Home Automation Management System".
+
+This is a competition project, so prioritize functionality, reliability, clean UI, and a professional user experience. Do not make only a static design.
+
+The application is a smart-home simulator. Users should be able to monitor and control simulated home appliances from one centralized dashboard.
+
+Required features:
+
+1. Authentication
+- Sign up
+- Login
+- Logout
+- Protected dashboard
+
+2. Dashboard
+- Total devices
+- Active devices
+- Devices currently ON
+- Estimated energy usage
+- Recent activity
+
+3. Device management
+Support:
+- Lights
+- Fans
+- AC
+- TV
+- Other appliances
+
+Each device must have:
+- Name
+- Type
+- Room
+- ON/OFF status
+- Last updated time
+
+Users can add, edit, delete, turn ON/OFF, and control devices.
+
+4. Light controls
+- ON/OFF
+- Brightness
+
+5. Fan controls
+- ON/OFF
+- Speed
+
+6. Rooms
+Support rooms such as Living Room, Bedroom, Kitchen, Bathroom, and Office.
+Allow filtering devices by room.
+
+7. Automation and schedules
+Users can create rules such as:
+IF time = 7:00 AM → turn ON Bedroom Light
+IF time = 10:30 PM → turn OFF all Lights
+
+Users can create, edit, delete, enable, and disable automation rules and schedules.
+
+The automation must actually execute simulated device actions while the application is running.
+
+8. Activity history
+Record device changes, automation executions, and device creation/deletion.
+
+9. Database
+Use a real persistent database for:
+- Users
+- Devices
+- Automation rules
+- Schedules
+- Activity logs
+
+Do not rely on hardcoded arrays for important data.
+
+10. UI
+Create a modern, professional, responsive smart-home dashboard with:
+- Sidebar navigation
+- Device cards
+- Status indicators
+- Controls
+- Statistics
+- Toast notifications
+- Loading states
+- Empty states
+- Error handling
+- Mobile responsiveness
+
+11. Demo data
+Provide realistic sample devices so the dashboard looks useful after login.
+
+12. Security
+Validate input, protect authenticated routes, never expose passwords, and never hardcode secrets.
+
+13. Testing
+Test login/signup, device CRUD, ON/OFF, brightness, fan speed, automation, scheduling, activity history, database persistence, page refresh persistence, and responsive UI. Fix errors before finishing.
+
+14. Create a professional README.md with project description, features, tech stack, database, setup instructions, environment variables, automation explanation, and future improvements.
+
+Important:
+- Do not add unnecessary features.
+- Do not stop after creating the UI.
+- Implement the actual functionality.
+- Use a simple reliable architecture suitable for Replit.
+- Make sensible technical decisions without asking unnecessary questions.
+- Finish with a runnable and deployable application.
